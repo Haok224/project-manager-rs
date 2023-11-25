@@ -2789,7 +2789,6 @@ dependencies = [
 name = "project-manager"
 version = "0.1.0"
 dependencies = [
- "cc",
  "slint",
  "slint-build",
  "winapi",

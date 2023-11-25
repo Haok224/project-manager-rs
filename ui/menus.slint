@@ -1,0 +1,49 @@
+import {HButton} from "hbutton.slint";
+import {Status} from "status.slint";
+
+export component StartMenu {
+    //--title--
+    Text {
+        text: " Project\nManager";
+        y:50px;
+        font-size: 40px;
+        }
+        //--openproject--
+        HButton {  
+            width: 100px;
+            x:-25px;
+            height: 35px;
+            y:100px;   
+            text: "打开";
+            clicked => {
+                Status.nowtab = 3;
+                Status.lasttab = 1;
+            }
+        }
+        //--newproject--
+        HButton {  
+            width: 100px;
+            height: 35px;
+            x:-25px;
+            y:120px;   
+            text: "新建";
+            clicked => {
+                Status.nowtab = 2;
+                Status.lasttab = 1;
+            }
+        }
+        //--listproject--
+        HButton {  
+            width: 100px;
+            height: 35px;
+            x:-25px;
+            y:140px;   
+            text: "列表";
+            clicked => {
+            Status.lasttab = 1;
+        }
+    }
+}
+export component NewMenu {
+    
+}
