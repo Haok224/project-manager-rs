@@ -1,10 +1,12 @@
 import {HButton} from "hbutton.slint";
-import {StartMenu,NewMenu} from "menus.slint";
+import {StartMenu,NewMenu,ListMenu,OpenMenu} from "menus.slint";
 import {Status} from "status.slint";
 
 component MainMenu {
     StartMenu {visible: Status.nowtab == 1;}
     NewMenu {visible: Status.nowtab == 2;}
+    OpenMenu {visible: Status.nowtab == 3;}
+    ListMenu {visible: Status.nowtab == 4;}
 }
 export component AppWindow inherits Window {
     title: "Project Manager";
@@ -33,40 +35,37 @@ export component AppWindow inherits Window {
             height: 40px;
             background: red;
             //关闭窗口
-            Rectangle {
+            HButton {
                 width: 40px;
                 height: border.height;
-                icon:=Text {text: "X";font-size: 40px;color: white;}
-                background: touchexit.has-hover ? #cc0e15 : red;
-                x:border.width - self.width;
-                touchexit:=TouchArea{
-                    clicked => {
-                        Functions.close-window();
-                    }
+                text: "×";
+                font-size: 40px;
+                x:root.width - self.width - 131px;
+                clicked => {
+                    Functions.close-window();
                 }
             }
-            Rectangle {
+            //返回
+            return:=HButton {
                 width: 40px;
                 height: border.height;
-                Text {text: "<";font-size: 40px;color: white;}
-                background: touchback.has-hover ? #cc0e15 : red;
+                text: "<";
+                font-size: 40px;
                 x:0;
-                touchback:=TouchArea{
-                    clicked => {
-                        Status.nowtab = Status.lasttab;
-                    }
+                clicked => {
+                    Status.nowtab = Status.lasttab;
                 }
             }
-            Rectangle {
+            //Home
+            HButton {
                 width: 40px;
                 height: border.height;
-                Image {source: @image-url("home.png");}
-                background: touchhome.has-hover ? #cc0e15 : red;
-                x:40px;
-                touchhome:=TouchArea{
-                    clicked => {
-                        Status.nowtab = 1;
-                    }
+                text: "🏠";
+                font-size: 20px;
+                txt-y-offset: 5px;
+                x:20px;
+                clicked => {
+                    Status.nowtab = 1;
                 }
             }
         }   
