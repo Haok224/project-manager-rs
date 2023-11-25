@@ -1,0 +1,93 @@
+import {HButton} from "hbutton.slint";
+component StartMenu {
+    //--title--
+    Text {
+        text: " Project\nManager";
+        y:50px;
+        font-size: 40px;
+        }
+        //--openproject--
+        HButton {  
+            width: 100px;
+            x:-25px;
+            height: 35px;
+            y:100px;   
+            text: "打开";
+        }
+        //--newproject--
+        HButton {  
+            width: 100px;
+            height: 35px;
+            x:-25px;
+            y:120px;   
+            text: "新建";
+        }
+        //--listproject--
+        HButton {  
+            width: 100px;
+            height: 35px;
+            x:-25px;
+            y:140px;   
+            text: "列表";
+        }
+}
+component MainMenu {
+    StartMenu {}
+}
+export component AppWindow inherits Window {
+    title: "Project Manager";
+    width: 300px;
+    height: 400px;
+
+    icon: @image-url("icon.png");
+
+    // 是否按下了鼠标
+    property <bool> drag-area-pressed: false;
+    // 记录按下的位置
+    property <length> drag-area-down-x: 0;
+    property <length> drag-area-down-y: 0;
+
+    // 调用Rust代码移动窗口
+    callback move-window(length, length);
+
+    no-frame: true;
+    //拖拽区域
+    TouchArea {
+        
+        border := Rectangle {
+            x:0px;
+            y:0px; 
+            width: 300px;
+            height: 40px;
+            background: red;
+            Rectangle {
+                width: 40px;
+                height: border.height;
+                icon:=Text {text: "X";}
+                background: touch.has-hover ? #cc0e15 : red;
+                x:border.width - self.width;
+                touch:=TouchArea{
+                    clicked => {
+                        Functions.close-window();
+                    }
+                }
+            }
+        }   
+        MainMenu {x:150px;y:0px;}
+    
+            moved => {
+                //根据移动的偏移量，设置窗口位置
+                move-window(self.mouse-x - drag-area-down-x, self.mouse-y - drag-area-down-y);
+            }
+            pointer-event(ev) => {
+                drag-area-pressed = ev.kind == PointerEventKind.down;
+                drag-area-down-x = self.mouse-x;
+                drag-area-down-y = self.mouse-y;
+            }
+        }
+
+}
+export global Functions {
+    pure callback close_window();
+    pure callback total_projects_num() -> int;
+}

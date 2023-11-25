@@ -1,0 +1,25 @@
+export component HButton {
+    callback clicked();
+    in-out property <string> text <=> txt.text;
+    Rectangle {
+        background: touch.has-hover ? #cc0e15 : red;
+        x:root.x;
+        y:root.y;
+        width: root.width;
+        height: root.height;
+        txt:=Text{
+            x: (parent.width - self.width)/2 + (touch.pressed ? 2px : 0);
+            y: (parent.height - self.height)/2 + (touch.pressed ? 1px : 0);
+            color: touch.pressed ? #fff : #eee;
+        }
+    }
+    touch:=TouchArea {
+        x:root.x;
+        y:root.y;
+        width: root.width;
+        height: root.height;
+        clicked => {
+            root.clicked();
+        }
+    }
+}
