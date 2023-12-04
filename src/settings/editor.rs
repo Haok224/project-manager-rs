@@ -75,3 +75,43 @@ pub fn set_property(action: Actions, path: &str, arg: &str, hwnd: *mut HWND__) {
             panic!("Cannot open config file.");
         });
 }
+
+pub fn read_property(hwnd: *mut HWND__, path: &str) -> Table {
+    println!("{path}");
+    let mut ss = String::new();
+    let mut file = std::fs::OpenOptions::new()
+        .read(true)
+        .open(path)
+        .unwrap_or_else(|e| -> _ {
+            unsafe {
+                let message = CString::new("ERROR").unwrap();
+                let title =
+                    CString::new(format!("无法读取位于 {path} 的配置文件.\n原因:\n{e}")).unwrap();
+                winapi::um::winuser::MessageBoxA(
+                    hwnd,
+                    title.as_ptr(),
+                    message.as_ptr(),
+                    MB_ICONERROR,
+                )
+            };
+            panic!("Cannot open config file.");
+        });
+    file.read_to_string(&mut ss).unwrap_or_else(|e| -> _ {
+        unsafe {
+            let message = CString::new("ERROR").unwrap();
+            let title = CString::new(format!("无法读取位于{path}的配置文件.\n原因:\n{e}")).unwrap();
+            winapi::um::winuser::MessageBoxA(hwnd, title.as_ptr(), message.as_ptr(), MB_ICONERROR)
+        };
+        panic!("Cannot open config file.");
+    });
+    let config = ss.parse::<Table>().unwrap_or_else(|e| -> _ {
+        unsafe {
+            let message = CString::new("ERROR").unwrap();
+            let title = CString::new(format!("无法解析位于{path}的配置文件.\n原因:\n{e}")).unwrap();
+            winapi::um::winuser::MessageBoxA(hwnd, message.as_ptr(), title.as_ptr(), MB_ICONERROR)
+        };
+        panic!("Cannot open config file.");
+    });
+    println!("{}", config.to_string());
+    config
+}

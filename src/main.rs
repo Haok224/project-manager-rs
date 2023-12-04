@@ -1,4 +1,4 @@
-//#![windows_subsystem="windows"]
+#![windows_subsystem = "windows"]
 
 use std::{
     error::Error,
@@ -209,8 +209,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         },
     );
 
-    let config_for_browse = config.clone();
-
     let config_for_get_df_prj = config.clone();
     app.global::<Functions>()
         .on_get_default_prj_path(move || -> SharedString {
@@ -254,13 +252,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                     return SharedString::from(&path);
                 }
             }
-            return SharedString::from(
-                config_for_browse
-                    .get("default-project-path")
-                    .unwrap()
-                    .as_str()
-                    .unwrap(),
-            );
+            return SharedString::from(project_manager::settings::config::read_default_path(
+                window,
+                &config_file_path,
+            ));
         });
     slint::run_event_loop()?;
     app.hide()?;
