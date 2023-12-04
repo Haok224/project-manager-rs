@@ -15,8 +15,8 @@ export component HButton {
         width: root.width;
         height: root.height;
         txt:=Text{
-            x: (parent.width - self.width)/2 + (touch.pressed ? 2px : 0);
-            y: (parent.height - self.height)/2 + (touch.pressed ? 1px : 0) + root.txt-y-offset;
+            x: (parent.width - self.width)/2;
+            y: (parent.height - self.height)/2 + root.txt-y-offset;
             color: touch.pressed ? #fff : #eee;
         }
     }

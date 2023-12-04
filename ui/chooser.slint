@@ -1,0 +1,73 @@
+export component Chooser {
+    in-out property <int> choose;
+    in-out property <string> one-txt <=> one-txt.text;
+    in-out property <string> two-txt <=> two-txt.text;
+    in-out property <bool> one-enabled : true;
+    in-out property <bool> two-enabled : true;
+
+    callback changed();
+
+    one:=Rectangle {
+
+        one-txt:=Text {
+            x: (parent.width - self.width)/2;
+            y: (parent.height - self.height)/2;
+            color: root.one-enabled ? black : grey;
+            // x:parent.x;
+            // y:parent.y;
+        }
+
+        x:root.x;
+        y:root.y;
+        width: 50%;
+        //204,14,21 255,0,0
+        border-color: one-touch.has-hover ? rgb(204,14,21) : rgb(255,0,0);
+        animate border-color{
+            duration: 165ms;
+        }
+        animate background{
+            duration: 165ms;
+        }
+        background: choose == 1 ? red : white;
+        border-width: 5px;
+        one-touch:=TouchArea{
+            clicked => {
+                if (root.one-enabled) {
+                    root.choose = 1;
+                    changed();
+                }
+            }
+        }
+    }
+    two:=Rectangle{
+
+        two-txt:=Text {
+            // x: root.x + one.width;
+            // y: parent.y;
+            x: (parent.width - self.width)/2;
+            y: (parent.height - self.height)/2;
+            color: two-enabled ? black : grey;
+        }
+
+        x:root.x + one.width;
+        y:root.y;
+        width: 50%;
+        border-color: two-touch.has-hover ? #cc0e15 : red;
+        border-width: 5px;
+        background: choose == 2 ? red : white;
+        animate border-color{
+            duration: 165ms;
+        }
+        animate background {
+             duration: 165ms;
+        }
+        two-touch:=TouchArea{
+            clicked => {
+                if (root.two-enabled) {
+                    root.choose = 1;
+                    changed();
+                }
+            }
+        }
+    }
+}

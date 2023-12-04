@@ -4,7 +4,15 @@ export global Status {
     2:NewMenu
     3:OpenMenu
     4:ListMenu
+    5:SettingsMenu
     */
     in-out property <int> nowtab : 1;
     in-out property <int> lasttab : 1;
+}
+
+export global NewProjectConfig {
+    in-out property <string> project-name;
+    in-out property <string> describe;
+    in-out property <string> path;
+    in-out property <string> lang;
 }

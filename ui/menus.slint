@@ -1,5 +1,7 @@
 import {HButton} from "hbutton.slint";
-import {Status} from "status.slint";
+import {Status,NewProjectConfig} from "status.slint";
+import {HorizontalBox, LineEdit, TextEdit} from "std-widgets.slint";
+import { Chooser } from "chooser.slint";
 
 export component StartMenu {
     //--title--
@@ -33,7 +35,7 @@ export component StartMenu {
             }
         }
         //--listproject--
-        HButton {  
+        list := HButton {  
             width: 100px;
             height: 35px;
             x:-25px;
@@ -44,10 +46,20 @@ export component StartMenu {
             Status.lasttab = 1;
         }
     }
+    //--settings--
+    HButton {  
+        width: 100px;
+        height: 35px;
+        x:-25px;
+        y:160px;   
+        text: "设置";
+        clicked => {
+        Status.nowtab = 5;
+        Status.lasttab = 1;
+        }
+    }  
 }
-export component NewMenu {
-    
-}
+
 
 export component ListMenu {
     

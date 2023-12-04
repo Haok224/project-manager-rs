@@ -1,13 +1,169 @@
 import {HButton} from "hbutton.slint";
-import {StartMenu,NewMenu,ListMenu,OpenMenu} from "menus.slint";
-import {Status} from "status.slint";
+import {ListMenu,OpenMenu,StartMenu} from "menus.slint";
+import {Status,NewProjectConfig} from "status.slint";
+import {TextEdit,LineEdit} from "std-widgets.slint";
+import {Chooser} from "chooser.slint";
+
+// *********************************** //
+// * Important Menus                 * //
+// * Need Native Source Code's Menus * //
+// *********************************** //
+
+//New Menu
+
+export component NewMenu {
+    t:=Text {
+        text: "新建项目";
+        y:50px;
+    }
+    chooser:=Chooser {
+        one-txt: "Rust";
+        two-txt: "C/C++";
+        two-enabled: false;
+        x:t.x;
+        y:40px;
+        width: 100px;
+        height: 30px;
+        choose: 1;
+        changed => {
+            NewProjectConfig.lang = self.choose == 1 ? "Rust" : "C/C++";   
+        }
+    }
+    lang-txt:=Text{
+        x:t.x - 60px;
+        y: 85px;
+        text: "语言:";
+    }
+    name:=LineEdit {
+        x: t.x - self.width + chooser.width;
+        y: 125px;
+        placeholder-text: "项目名称";
+        edited => {
+            NewProjectConfig.project-name = self.text;
+        }
+    }
+    name-text:=Text {
+        x:lang-txt.x - self.width - 5px;
+        y:name.y + self.width / 2 - 20px;
+        text: "项目名称";
+    }
+    des-text:=Text {
+        x:lang-txt.x - self.width - 5px;
+        y:des-edit.y + self.width / 2 - 20px;
+        text: "项目描述";
+    }
+    des-edit :=TextEdit {
+        x:name.x;
+        y:170px;
+        text <=> NewProjectConfig.describe;
+        width: name.width;
+        height: 100px;
+        edited => {
+            NewProjectConfig.describe = self.text;   
+        }
+    }
+    Text {
+        x:des-text.x;
+        y: 280px;
+        text: "项目路径";
+    }
+    path:=LineEdit {
+        x: name.x;
+        y: 280px;
+        placeholder-text: "项目路径";   
+        edited => {
+            NewProjectConfig.path = self.text;
+        }
+    }
+    HButton {
+        x : t.x;
+        y: 165px;
+        width: 100px;
+        height: 25px;
+        text: "新建项目";   
+        clicked => {
+            Functions.create-project(NewProjectConfig.project-name,NewProjectConfig.describe,NewProjectConfig.path,NewProjectConfig.lang);
+        }
+    }
+}
+
+//Settings Menu
+
+component SettingsMenu {
+    t:=Text {
+        text: "设置";
+        y:50px;
+    }
+    path-edit:=LineEdit {
+        placeholder-text: "默认路径";   
+        x:(root.x - self.width) / 2; 
+        y:90px;
+        read-only: true;
+        width: config-file.width * 70%;
+        text: Functions.get-default-prj-path();
+    }
+    // Browse
+    HButton {
+        text: "浏览";
+        x:path-edit.x + path-edit.width - 27px;
+        y: path-edit.y - 45px;
+        width: config-file.width * 30%;
+        height: path-edit.height;
+        clicked => {
+            path-edit.text = Functions.browse-default-project-path();
+        }
+    }
+    text-path:=Text{
+        x:-t.x - 50px;
+        y:73px;
+        text: "默认项目路径";
+    }
+    config-file:=LineEdit {
+        placeholder-text: "配置文件存储路径";
+        x:path-edit.x;
+        y: 150px;
+        visible: false;
+    }
+    Chooser {
+        height: config-file.height;
+        width: config-file.width;
+        x: config-file.x + 30px;
+        y: config-file.y - 70px;
+        one-txt: "当前目录";   
+        two-txt: "%AppData%";
+        two-enabled: false;
+    }
+    Text {
+        x: text-path.x;
+        y:133px;
+        text: "配置文件存储路径";
+    }
+    HButton {
+        x : t.x - 15px;
+        y: 165px;
+        width: 100px;
+        height: 25px;
+        text: "保存配置";   
+        clicked => {
+            Functions.check-settings();
+        }
+    }
+}
+
+//Main Menu
 
 component MainMenu {
     StartMenu {visible: Status.nowtab == 1;}
     NewMenu {visible: Status.nowtab == 2;}
     OpenMenu {visible: Status.nowtab == 3;}
     ListMenu {visible: Status.nowtab == 4;}
+    SettingsMenu {visible: Status.nowtab == 5;}
 }
+
+// ************** //
+// * App Window * //
+// ************** //
+
 export component AppWindow inherits Window {
     title: "Project Manager";
     width: 300px;
@@ -94,5 +250,14 @@ export component AppWindow inherits Window {
 export global Functions {
     pure callback close_window();
     pure callback total_projects_num() -> int;
+    // name , des , path , lang
+    pure callback create-project(string,string,string,string);
+    pure callback browse-default-project-path() -> string;
+    pure callback check-settings();
+    pure callback set-default-project-path-editor-text(string);
+    pure callback get-default-prj-path() -> string;
 }
 
+export global GlobalConfig {
+    in-out property <string> defult-project-path;
+}
