@@ -5,13 +5,12 @@ use std::{
     ffi::CString,
     io::{Read, Write},
     path::Path,
-    process::exit,
 };
 
 use project_manager::{show_error, show_error_with_args};
 use slint::{LogicalPosition, SharedString};
 use toml::Table;
-use winapi::um::winuser::{FindWindowA, MB_ICONERROR, MB_OK};
+use winapi::um::winuser::{FindWindowA, MB_ICONERROR};
 
 slint::include_modules!();
 fn main() -> Result<(), Box<dyn Error>> {
@@ -143,19 +142,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                 std::io::Error,
                 "无法写入新的配置文件.原因:\n{}\n"
             ));
-        // unsafe {
-        //     let message = CString::new("重新运行以开始Project Manager.").unwrap();
-        //     let title = CString::new("INFO").unwrap();
-        //     winapi::um::winuser::MessageBoxA(
-        //         core::ptr::null_mut(),
-        //         message.as_ptr(),
-        //         title.as_ptr(),
-        //         MB_OK,
-        //     )
-        // };
-        // exit(0);
     }
 
+    // |-----|
+    // |-App-|
+    // |-----|
     let app = AppWindow::new().unwrap();
 
     let handle1 = app.as_weak();
@@ -163,12 +154,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     app.global::<Functions>().on_close_window(move || {
         handle2.upgrade().unwrap().hide().unwrap();
     });
-
-    app.global::<Functions>().on_create_project(
-        |name: SharedString, des: SharedString, path: SharedString, lang: SharedString| {
-            println!("{name} {des} {path} {lang}");
-        },
-    );
 
     let config_for_get_df_prj = config_file_path.clone();
     app.global::<Functions>()
@@ -199,14 +184,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     let window: *mut winapi::shared::windef::HWND__ =
         unsafe { FindWindowA(std::ptr::null_mut(), title.as_ptr()) };
     println!("{}", window as isize);
+    let config_file_path_for_browse = config_file_path.clone();
     app.global::<Functions>()
+        // 文件选择
         .on_browse_default_project_path(move || -> SharedString {
             let res = nfd::open_pick_folder(None);
             if let Result::Ok(status) = res {
                 if let nfd::Response::Okay(path) = status {
                     project_manager::settings::config::set_default_path(
                         &path,
-                        &config_file_path,
+                        &config_file_path_for_browse,
                         window,
                     );
                     return SharedString::from(&path);
@@ -214,9 +201,23 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
             return SharedString::from(project_manager::settings::config::read_default_path(
                 window,
-                &config_file_path,
+                &config_file_path_for_browse,
             ));
         });
+    let config_file_path_for_create_project = config_file_path.clone();
+
+    // 新建项目
+    app.global::<Functions>().on_create_project(
+        move |name: SharedString, des: SharedString, path: SharedString, lang: SharedString| {
+            println!("{name} {des} {path} {lang}");
+            project_manager::settings::editor::set_property(
+                project_manager::settings::editor::Actions::NewProject,
+                &config_file_path_for_create_project,
+                &format!("asd"),
+                window,
+            );
+        },
+    );
     slint::run_event_loop()?;
     app.hide()?;
     Ok(())

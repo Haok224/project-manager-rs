@@ -6,6 +6,8 @@ use std::{
 use toml::{Table, Value};
 use winapi::{shared::windef::HWND__, um::winuser::MB_ICONERROR};
 
+use crate::show_error;
+
 use super::super::show_error_with_args;
 
 #[allow(dead_code)]
@@ -50,25 +52,18 @@ pub fn set_property(action: Actions, path: &str, arg: &str, _hwnd: *mut HWND__) 
             );
             println!("{}", config.to_string());
         }
-        _ => {}
+        Actions::NewProject => {
+            let vec = config
+                .get("projects")
+                .unwrap_or_else(show_error!("Panic at get.panic"))
+                .as_array()
+                .unwrap_or_else(show_error!("Panic at as array"));
+            let mut vec = vec.clone();
+            vec.push(Value::String(arg.into()));
+            config.insert("projects".into(), Value::Array(vec.to_vec()));
+        }
     }
     println!("{}", config.to_string());
-    //写入到配置文件
-    // file.write_all(config.to_string().as_bytes())
-    //     .unwrap_or_else(|e: std::io::Error| -> _ {
-    //         unsafe {
-    //             let message = CString::new("ERROR").unwrap();
-    //             let title =
-    //                 CString::new(format!("无法写入位于{path}的配置文件.\n原因:\n{e}")).unwrap();
-    //             winapi::um::winuser::MessageBoxA(
-    //                 hwnd,
-    //                 title.as_ptr(),
-    //                 message.as_ptr(),
-    //                 MB_ICONERROR,
-    //             )
-    //         };
-    //         panic!("Cannot open config file.");
-    //     });
     file.write_all(config.to_string().as_bytes())
         .unwrap_or_else(show_error_with_args!(
             std::io::Error,

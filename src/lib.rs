@@ -32,7 +32,6 @@ macro_rules! show_error {
             panic!("Cannot read config file.");
         }
     }
-
 }
 
 #[macro_export]
@@ -67,5 +66,4 @@ macro_rules! show_error_with_args {
             panic!("Cannot read config file.");
         }
     }
-
 }

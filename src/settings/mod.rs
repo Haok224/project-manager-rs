@@ -1,4 +1,4 @@
-mod editor;
+pub mod editor;
 
 pub mod config {
     use std::ffi::CString;
@@ -15,9 +15,9 @@ pub mod config {
         let config = editor::read_property(hwnd, path);
         config
             .get("default-project-path")
-            .unwrap_or_else(show_error!("无法读取位于{}的配置文件.", path))
+            .unwrap_or_else(show_error!("无法读取位于{0}的配置文件.", path))
             .as_str()
-            .unwrap_or_else(show_error!("无法读取位于{}的配置文件.", path))
+            .unwrap_or_else(show_error!("无法读取位于{0}的配置文件.", path))
             .to_string()
     }
 }
