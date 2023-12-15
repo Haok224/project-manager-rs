@@ -6,4 +6,10 @@ fn main() {
         CompilerConfiguration::new().with_style("fluent-light".to_string()),
     )
     .unwrap();
+    if cfg!(target_os = "windows") {
+        let mut res = winres::WindowsResource::new();
+        res.set_icon("icon.ico");
+        res.compile().unwrap();
+    }
 }
+

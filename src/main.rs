@@ -8,14 +8,15 @@ use std::{
     process::exit,
 };
 
+use project_manager::{show_error, show_error_with_args};
 use slint::{LogicalPosition, SharedString};
 use toml::Table;
 use winapi::um::winuser::{FindWindowA, MB_ICONERROR, MB_OK};
 
 slint::include_modules!();
 fn main() -> Result<(), Box<dyn Error>> {
-    let config_file_path;
-    let mut config = Table::new();
+    let mut config_file_path = String::new();
+    let mut _config = Table::new();
     let mut has_config_file = false;
     //判断文件是否存在
     let current_path = Path::new("prjmng.toml");
@@ -28,18 +29,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         //读取当前目录的配置文件
         let file = std::fs::File::open(current_path);
         //发生错误，弹出错误提示框并panic
-        if let Err(_) = file {
-            unsafe {
-                let message = CString::new("ERROR").unwrap();
-                let title = CString::new("无法打开位于当前目录的配置文件.").unwrap();
-                winapi::um::winuser::MessageBoxA(
-                    core::ptr::null_mut(),
-                    message.as_ptr(),
-                    title.as_ptr(),
-                    MB_ICONERROR,
-                )
-            };
-            panic!("Cannot open config file.");
+        if let Err(e) = file {
+            let clo = show_error!("无法打开位于当前目录的配置文件.\n原因:\n{}", e);
+            clo()
         } else {
             config_file_path = "prjmng.toml".to_string();
             let mut config_str = String::new();
@@ -59,7 +51,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     panic!("Cannot read config file.");
                 });
             unsafe {
-                config = config_str.parse::<Table>().unwrap_or_else(|err| -> _ {
+                _config = config_str.parse::<Table>().unwrap_or_else(|err| -> _ {
                     let message = CString::new(format!(
                         "无法在当前目录读取配置文件.\n原因:\n{}",
                         err.to_string()
@@ -122,7 +114,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         panic!("Cannot read config file.\nCaused by:\n{}",err.to_string());
                     });
                 unsafe {
-                    config = config_str.parse::<Table>().unwrap_or_else(|err| -> _ {
+                    _config = config_str.parse::<Table>().unwrap_or_else(|err| -> _ {
                         let message = CString::new(format!("无法打开位于`%AppData%\\ProjectManager\\prjmng.toml`的配置文件.\n原因:\n{}",err.to_string())).unwrap();
                         let title = CString::new("ERROR").unwrap();
                         winapi::um::winuser::MessageBoxA(
@@ -142,57 +134,26 @@ fn main() -> Result<(), Box<dyn Error>> {
     //如果不存在配置文件，新建
     if !has_config_file {
         //默认在当前目录创建新文件
-        let mut file =
-            std::fs::File::create("prjmng.toml").unwrap_or_else(|err| -> std::fs::File {
-                unsafe {
-                    let message = CString::new(format!(
-                        "无法在当前目录创建新的配置文件.\n原因:\n{}",
-                        err.to_string()
-                    ))
-                    .unwrap();
-                    let title = CString::new("ERROR").unwrap();
-                    winapi::um::winuser::MessageBoxA(
-                        core::ptr::null_mut(),
-                        message.as_ptr(),
-                        title.as_ptr(),
-                        MB_ICONERROR,
-                    )
-                };
-                panic!(
-                    "Cannot create config file.\nCaused by:\n{}",
-                    err.to_string()
-                );
-            });
+        let mut file = std::fs::File::create("prjmng.toml").unwrap_or_else(show_error_with_args!(
+            std::io::Error,
+            "无法在当前目录创建新的配置文件.\n原因:\n{}"
+        ));
         file.write_all("default-project-path = \"projects\"".as_bytes())
-            .unwrap_or_else(|err| -> _ {
-                unsafe {
-                    let message =
-                        CString::new(format!("无法写入新的配置文件.原因:\n{}\n", err.to_string()))
-                            .unwrap();
-                    let title = CString::new("ERROR").unwrap();
-                    winapi::um::winuser::MessageBoxA(
-                        core::ptr::null_mut(),
-                        message.as_ptr(),
-                        title.as_ptr(),
-                        MB_ICONERROR,
-                    )
-                };
-                panic!(
-                    "Cannot write to config file.\nCaused by:\n{}",
-                    err.to_string()
-                );
-            });
-        unsafe {
-            let message = CString::new("重新运行以开始Project Manager.").unwrap();
-            let title = CString::new("INFO").unwrap();
-            winapi::um::winuser::MessageBoxA(
-                core::ptr::null_mut(),
-                message.as_ptr(),
-                title.as_ptr(),
-                MB_OK,
-            )
-        };
-        exit(0);
+            .unwrap_or_else(show_error_with_args!(
+                std::io::Error,
+                "无法写入新的配置文件.原因:\n{}\n"
+            ));
+        // unsafe {
+        //     let message = CString::new("重新运行以开始Project Manager.").unwrap();
+        //     let title = CString::new("INFO").unwrap();
+        //     winapi::um::winuser::MessageBoxA(
+        //         core::ptr::null_mut(),
+        //         message.as_ptr(),
+        //         title.as_ptr(),
+        //         MB_OK,
+        //     )
+        // };
+        // exit(0);
     }
 
     let app = AppWindow::new().unwrap();
@@ -209,16 +170,13 @@ fn main() -> Result<(), Box<dyn Error>> {
         },
     );
 
-    let config_for_get_df_prj = config.clone();
+    let config_for_get_df_prj = config_file_path.clone();
     app.global::<Functions>()
         .on_get_default_prj_path(move || -> SharedString {
-            SharedString::from(
-                config_for_get_df_prj
-                    .get("default-project-path")
-                    .unwrap()
-                    .as_str()
-                    .unwrap(),
-            )
+            SharedString::from(project_manager::settings::config::read_default_path(
+                std::ptr::null_mut(),
+                &config_for_get_df_prj,
+            ))
         });
 
     app.on_move_window(move |offset_x, offset_y| {
@@ -234,6 +192,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             logical_pos.y + offset_y,
         ));
     });
+    app.global::<Functions>()
+        .on_logln(|s: SharedString| println!("{s}"));
     app.show()?;
     let title = CString::new("Project Manager")?;
     let window: *mut winapi::shared::windef::HWND__ =

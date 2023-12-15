@@ -10,24 +10,24 @@ export component StartMenu {
         y:50px;
         font-size: 40px;
         }
-        //--openproject--
-        HButton {  
-            width: 100px;
-            x:-25px;
-            height: 35px;
-            y:100px;   
-            text: "打开";
-            clicked => {
-                Status.nowtab = 3;
-                Status.lasttab = 1;
-            }
-        }
+        // //--openproject--
+        // HButton {  
+        //     width: 100px;
+        //     x:-25px;
+        //     height: 35px;
+        //     y:100px;   
+        //     text: "打开";
+        //     clicked => {
+        //         Status.nowtab = 3;
+        //         Status.lasttab = 1;
+        //     }
+        // }
         //--newproject--
         HButton {  
             width: 100px;
             height: 35px;
             x:-25px;
-            y:120px;   
+            y:110px;   
             text: "新建";
             clicked => {
                 Status.nowtab = 2;
@@ -39,7 +39,7 @@ export component StartMenu {
             width: 100px;
             height: 35px;
             x:-25px;
-            y:140px;   
+            y:130px;   
             text: "列表";
             clicked => {
             Status.nowtab = 4;
@@ -51,19 +51,11 @@ export component StartMenu {
         width: 100px;
         height: 35px;
         x:-25px;
-        y:160px;   
+        y:150px;   
         text: "设置";
         clicked => {
         Status.nowtab = 5;
         Status.lasttab = 1;
         }
     }  
-}
-
-
-export component ListMenu {
-    
-}
-export component OpenMenu {
-    
 }

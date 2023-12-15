@@ -1,5 +1,5 @@
 import {HButton} from "hbutton.slint";
-import {ListMenu,OpenMenu,StartMenu} from "menus.slint";
+import {StartMenu} from "menus.slint";
 import {Status,NewProjectConfig} from "status.slint";
 import {TextEdit,LineEdit} from "std-widgets.slint";
 import {Chooser} from "chooser.slint";
@@ -150,12 +150,21 @@ component SettingsMenu {
     }
 }
 
+// List Menu
+
+component ListMenu {
+    Text {
+        text: "项目列表";
+        y:50px;
+    }
+    
+}
+
 //Main Menu
 
 component MainMenu {
     StartMenu {visible: Status.nowtab == 1;}
     NewMenu {visible: Status.nowtab == 2;}
-    OpenMenu {visible: Status.nowtab == 3;}
     ListMenu {visible: Status.nowtab == 4;}
     SettingsMenu {visible: Status.nowtab == 5;}
 }
@@ -168,8 +177,6 @@ export component AppWindow inherits Window {
     title: "Project Manager";
     width: 300px;
     height: 400px;
-
-    icon: @image-url("icon.png");
 
     // 是否按下了鼠标
     property <bool> drag-area-pressed: false;
@@ -204,7 +211,7 @@ export component AppWindow inherits Window {
             Text {
                 x:root.x + 100px;
                 y:10px;
-                text: "dev-65cc3bd";
+                text: "dev-db92d4a";
             }
             //返回
             return:=HButton {
@@ -261,6 +268,7 @@ export global Functions {
     pure callback check-settings();
     pure callback set-default-project-path-editor-text(string);
     pure callback get-default-prj-path() -> string;
+    pure callback logln(string);
 }
 
 export global GlobalConfig {
