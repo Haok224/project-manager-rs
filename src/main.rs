@@ -1,13 +1,14 @@
-#![windows_subsystem = "windows"]
+// #![windows_subsystem = "windows"]
 
 use std::{
     error::Error,
     ffi::CString,
     io::{Read, Write},
     path::Path,
+    process::{Command, CommandArgs},
 };
 
-use project_manager::{show_error, show_error_with_args};
+use project_manager::{settings::editor::read_property, show_error, show_error_with_args};
 use slint::{LogicalPosition, SharedString};
 use toml::Table;
 use winapi::um::winuser::{FindWindowA, MB_ICONERROR};
@@ -94,24 +95,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             } else {
                 let mut config_str = String::new();
                 let mut file = file.unwrap();
-                file
-                    .read_to_string(&mut config_str)
-                    .unwrap_or_else(|err| -> _ {
-                        unsafe {
-                            let message = CString::new(
-                                format!("无法读取位于`%AppData%\\ProjectManager\\prjmng.toml`的配置文件.\n原因:\n{}",err.to_string()),
-                            )
-                            .unwrap();
-                            let title = CString::new("ERROR").unwrap();
-                            winapi::um::winuser::MessageBoxA(
-                                core::ptr::null_mut(),
-                                message.as_ptr(),
-                                title.as_ptr(),
-                                MB_ICONERROR,
-                            )
-                        };
-                        panic!("Cannot read config file.\nCaused by:\n{}",err.to_string());
-                    });
+                file.read_to_string(&mut config_str)
+                    .unwrap_or_else(show_error_with_args!(
+                    std::io::Error,
+                    "无法读取位于`%AppData%\\ProjectManager\\prjmng.toml`的配置文件.\n原因:\n{}"
+                ));
                 unsafe {
                     _config = config_str.parse::<Table>().unwrap_or_else(|err| -> _ {
                         let message = CString::new(format!("无法打开位于`%AppData%\\ProjectManager\\prjmng.toml`的配置文件.\n原因:\n{}",err.to_string())).unwrap();
@@ -210,14 +198,23 @@ fn main() -> Result<(), Box<dyn Error>> {
     app.global::<Functions>().on_create_project(
         move |name: SharedString, des: SharedString, path: SharedString, lang: SharedString| {
             println!("{name} {des} {path} {lang}");
-            project_manager::settings::editor::set_property(
-                project_manager::settings::editor::Actions::NewProject,
-                &config_file_path_for_create_project,
-                &format!("asd"),
-                window,
+            let path = read_property(window, &config_file_path_for_create_project);
+            let mut cmd = Command::new("cargo");
+            cmd.arg("new").arg(&name.to_string());
+            cmd.current_dir(
+                path.get("default-project-path")
+                    .unwrap_or_else(show_error!("无法新建项目！"))
+                    .as_str()
+                    .unwrap(),
             );
+            cmd.spawn()
+                .unwrap_or_else(show_error_with_args!(std::io::Error, "{}"));
         },
     );
+
+    app.global::<Functions>().on_get_now_project_name(|| -> SharedString {
+        todo!()
+    });
     slint::run_event_loop()?;
     app.hide()?;
     Ok(())

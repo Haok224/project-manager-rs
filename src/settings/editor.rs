@@ -13,7 +13,6 @@ use super::super::show_error_with_args;
 #[allow(dead_code)]
 pub enum Actions {
     DefaultProjectPath,
-    NewProject,
 }
 
 pub fn set_property(action: Actions, path: &str, arg: &str, _hwnd: *mut HWND__) {
@@ -51,16 +50,6 @@ pub fn set_property(action: Actions, path: &str, arg: &str, _hwnd: *mut HWND__) 
                 Value::String(arg.to_string()),
             );
             println!("{}", config.to_string());
-        }
-        Actions::NewProject => {
-            let vec = config
-                .get("projects")
-                .unwrap_or_else(show_error!("Panic at get.panic"))
-                .as_array()
-                .unwrap_or_else(show_error!("Panic at as array"));
-            let mut vec = vec.clone();
-            vec.push(Value::String(arg.into()));
-            config.insert("projects".into(), Value::Array(vec.to_vec()));
         }
     }
     println!("{}", config.to_string());

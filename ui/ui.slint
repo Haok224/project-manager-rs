@@ -156,8 +156,16 @@ component ListMenu {
     Text {
         text: "项目列表";
         y:50px;
+    }   
+}
+
+// Project Panel
+
+component ProjectPanel{
+    t:=Text {
+        text: "项目" + Functions.get-now-project-name() +"面板";
+        y:50px;
     }
-    
 }
 
 //Main Menu
@@ -167,6 +175,7 @@ component MainMenu {
     NewMenu {visible: Status.nowtab == 2;}
     ListMenu {visible: Status.nowtab == 4;}
     SettingsMenu {visible: Status.nowtab == 5;}
+    ProjectPanel {visible: Status.nowtab == 6;}
 }
 
 // ************** //
@@ -211,7 +220,7 @@ export component AppWindow inherits Window {
             Text {
                 x:root.x + 100px;
                 y:10px;
-                text: "dev-b725b12";
+                text: "dev-c46a094";
             }
             //返回
             return:=HButton {
@@ -269,6 +278,7 @@ export global Functions {
     pure callback set-default-project-path-editor-text(string);
     pure callback get-default-prj-path() -> string;
     pure callback logln(string);
+    pure callback get-now-project-name() -> string;
 }
 
 export global GlobalConfig {
