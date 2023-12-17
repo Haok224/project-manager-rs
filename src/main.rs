@@ -5,7 +5,7 @@ use std::{
     ffi::CString,
     io::{Read, Write},
     path::Path,
-    process::{Command, CommandArgs},
+    process::Command,
 };
 
 use project_manager::{settings::editor::read_property, show_error, show_error_with_args};
@@ -14,6 +14,9 @@ use toml::Table;
 use winapi::um::winuser::{FindWindowA, MB_ICONERROR};
 
 slint::include_modules!();
+
+pub static mut NOW_PROJECT: Option<&str> = None;
+
 fn main() -> Result<(), Box<dyn Error>> {
     let mut config_file_path = String::new();
     let mut _config = Table::new();
@@ -151,7 +154,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                 &config_for_get_df_prj,
             ))
         });
-
+    app.global::<Functions>()
+        .on_get_compile_time(|| -> SharedString {
+            let build_time = env!("BUILD_TIME");
+            build_time.into()
+        });
     app.on_move_window(move |offset_x, offset_y| {
         let main = handle1.upgrade().unwrap();
         //获取窗口的物理坐标
@@ -212,9 +219,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         },
     );
 
-    app.global::<Functions>().on_get_now_project_name(|| -> SharedString {
-        todo!()
-    });
+    app.global::<Functions>()
+        .on_get_now_project_name(|| -> SharedString {
+            unsafe { NOW_PROJECT.unwrap_or_else(|| "").into() }
+        });
     slint::run_event_loop()?;
     app.hide()?;
     Ok(())

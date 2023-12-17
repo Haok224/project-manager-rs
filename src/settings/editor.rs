@@ -6,11 +6,8 @@ use std::{
 use toml::{Table, Value};
 use winapi::{shared::windef::HWND__, um::winuser::MB_ICONERROR};
 
-use crate::show_error;
-
 use super::super::show_error_with_args;
 
-#[allow(dead_code)]
 pub enum Actions {
     DefaultProjectPath,
 }

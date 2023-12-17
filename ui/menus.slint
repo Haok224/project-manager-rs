@@ -27,7 +27,7 @@ export component StartMenu {
             width: 100px;
             height: 35px;
             x:-25px;
-            y:110px;   
+            y:100px;   
             text: "新建";
             clicked => {
                 Status.nowtab = 2;
@@ -39,7 +39,7 @@ export component StartMenu {
             width: 100px;
             height: 35px;
             x:-25px;
-            y:130px;   
+            y:120px;   
             text: "列表";
             clicked => {
             Status.nowtab = 4;
@@ -51,10 +51,22 @@ export component StartMenu {
         width: 100px;
         height: 35px;
         x:-25px;
-        y:150px;   
+        y:140px;   
         text: "设置";
         clicked => {
         Status.nowtab = 5;
+        Status.lasttab = 1;
+        }
+    }  
+    //--about--
+    HButton {  
+        width: 100px;
+        height: 35px;
+        x:-25px;
+        y:160px;   
+        text: "关于";
+        clicked => {
+        Status.nowtab = 7;
         Status.lasttab = 1;
         }
     }  

@@ -168,6 +168,32 @@ component ProjectPanel{
     }
 }
 
+// About Panel
+
+component AboutPanel {
+    //--title--
+    Text {
+        text: " Project\nManager";
+        y:50px;
+        font-size: 40px;
+    }
+    Text {
+        text: "    Copyright © by Haok224.\n           All rights reserved.\n     版权所有 © Haok224。\n           保留所有权利。";
+        y:150px;
+        font-size: 20px;
+    }
+    Text {
+        text : "版本 : " + Status.version;
+        y:250px;
+        font-size: 20px;
+    }
+    Text {
+        text: "编译时间 : " + Functions.get-compile-time();
+        y:280px;
+        font-size: 20px;
+    }
+}
+
 //Main Menu
 
 component MainMenu {
@@ -176,6 +202,7 @@ component MainMenu {
     ListMenu {visible: Status.nowtab == 4;}
     SettingsMenu {visible: Status.nowtab == 5;}
     ProjectPanel {visible: Status.nowtab == 6;}
+    AboutPanel {visible: Status.nowtab == 7;}
 }
 
 // ************** //
@@ -220,7 +247,7 @@ export component AppWindow inherits Window {
             Text {
                 x:root.x + 100px;
                 y:10px;
-                text: "dev-c46a094";
+                text: Status.version;
             }
             //返回
             return:=HButton {
@@ -279,6 +306,7 @@ export global Functions {
     pure callback get-default-prj-path() -> string;
     pure callback logln(string);
     pure callback get-now-project-name() -> string;
+    pure callback get-compile-time() -> string;
 }
 
 export global GlobalConfig {
