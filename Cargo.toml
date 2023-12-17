@@ -3,7 +3,7 @@ authors = ["Haok224 <78055710+Haok224@users.noreply.github.com>"]
 build = "build.rs"
 edition = "2021"
 name = "project-manager"
-version = "0.1.0-alpha"
+version = "0.1.0-0.0.1"
 
 [profile.release]
 lto = true
