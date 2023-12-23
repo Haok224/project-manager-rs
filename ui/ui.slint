@@ -82,7 +82,7 @@ export component NewMenu {
         height: 25px;
         text: "新建项目";   
         clicked => {
-            Functions.create-project(NewProjectConfig.project-name,NewProjectConfig.describe,NewProjectConfig.path,NewProjectConfig.lang);
+            Functions.im-create-project(NewProjectConfig.project-name,NewProjectConfig.describe,NewProjectConfig.path,NewProjectConfig.lang);
         }
     }
 }
@@ -163,7 +163,7 @@ component ListMenu {
 
 component ProjectPanel{
     t:=Text {
-        text: "项目" + Functions.get-now-project-name() +"面板";
+        text: "项目 " + Functions.get-now-project-name() +" 面板";
         y:50px;
     }
 }
@@ -295,6 +295,7 @@ export component AppWindow inherits Window {
         }
 
 }
+
 export global Functions {
     pure callback close_window();
     pure callback total_projects_num() -> int;
@@ -307,6 +308,11 @@ export global Functions {
     pure callback logln(string);
     pure callback get-now-project-name() -> string;
     pure callback get-compile-time() -> string;
+    callback im-create-project(string,string,string,string);
+    im-create-project(a,b,c,d) => {
+        create-project(a,b,c,d);
+        Status.nowtab = 6;
+    }
 }
 
 export global GlobalConfig {

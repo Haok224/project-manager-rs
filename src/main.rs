@@ -216,12 +216,19 @@ fn main() -> Result<(), Box<dyn Error>> {
             );
             cmd.spawn()
                 .unwrap_or_else(show_error_with_args!(std::io::Error, "{}"));
+            project_manager::settings::config::set_nowtab(
+                &config_file_path_for_create_project,
+                &name,
+                window,
+            )
         },
     );
-
+    let config_file_path_for_nowtab = config_file_path.clone();
     app.global::<Functions>()
-        .on_get_now_project_name(|| -> SharedString {
-            unsafe { NOW_PROJECT.unwrap_or_else(|| "").into() }
+        .on_get_now_project_name(move || -> SharedString {
+            project_manager::settings::config::read_nowtab(window, &config_file_path_for_nowtab)
+                .unwrap_or_else(|| format!("unknown"))
+                .into()
         });
     slint::run_event_loop()?;
     app.hide()?;

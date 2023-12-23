@@ -10,9 +10,11 @@ use super::super::show_error_with_args;
 
 pub enum Actions {
     DefaultProjectPath,
+    NowTab,
 }
 
 pub fn set_property(action: Actions, path: &str, arg: &str, _hwnd: *mut HWND__) {
+    let mut config = read_property(_hwnd, path);
     println!("{path} {arg}");
     let mut ss = String::new();
     let mut file = {
@@ -33,13 +35,8 @@ pub fn set_property(action: Actions, path: &str, arg: &str, _hwnd: *mut HWND__) 
             std::io::Error,
             "无法读取位于 {1} 的配置文件.\n原因:\n{0}",
             path
-        ));
-    let mut config = ss.parse::<Table>().unwrap_or_else(show_error_with_args!(
-        toml::de::Error,
-        "无法解析位于 {1} 的配置文件.\n原因:\n{0}",
-        path
     ));
-
+    println!("READ CONFIG = {config}");
     match action {
         Actions::DefaultProjectPath => {
             config.insert(
@@ -47,6 +44,9 @@ pub fn set_property(action: Actions, path: &str, arg: &str, _hwnd: *mut HWND__) 
                 Value::String(arg.to_string()),
             );
             println!("{}", config.to_string());
+        }
+        Actions::NowTab => {
+            config.insert("nowtab".into(), Value::String(format!("{arg}")));
         }
     }
     println!("{}", config.to_string());
