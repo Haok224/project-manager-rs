@@ -203,7 +203,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // 新建项目
     app.global::<Functions>().on_create_project(
-        move |name: SharedString, des: SharedString, path: SharedString, lang: SharedString| {
+        move |name: SharedString, des: SharedString, path: SharedString, lang: SharedString , is_lib : bool| {
             println!("{name} {des} {path} {lang}");
             let path = read_property(window, &config_file_path_for_create_project);
             let mut cmd = Command::new("cargo");
@@ -214,6 +214,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                     .as_str()
                     .unwrap(),
             );
+            if (is_lib) {
+                cmd.arg("--lib");
+            }
             cmd.spawn()
                 .unwrap_or_else(show_error_with_args!(std::io::Error, "{}"));
             project_manager::settings::config::set_nowtab(

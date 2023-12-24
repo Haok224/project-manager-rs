@@ -1,3 +1,8 @@
 {
-    "cmake.configureOnOpen": false
+    "custom-format.formatters": [
+        {
+            "language": "slint",
+            "command": "E:\\.rust\\.cargo\\bin\\slint-fmt.exe /dev/stdin"
+        }
+    ]
 }

@@ -1,7 +1,7 @@
 import {HButton} from "hbutton.slint";
 import {StartMenu} from "menus.slint";
 import {Status,NewProjectConfig} from "status.slint";
-import {TextEdit,LineEdit} from "std-widgets.slint";
+import {TextEdit,LineEdit,CheckBox} from "std-widgets.slint";
 import {Chooser} from "chooser.slint";
 
 // *********************************** //
@@ -12,77 +12,102 @@ import {Chooser} from "chooser.slint";
 //New Menu
 
 export component NewMenu {
-    t:=Text {
+    t := Text {
         text: "新建项目";
-        y:50px;
+        y: 50px;
     }
-    chooser:=Chooser {
+
+    chooser := Chooser {
         one-txt: "Rust";
         two-txt: "C/C++";
         two-enabled: false;
-        x:t.x;
-        y:40px;
+        x: t.x;
+        y: 40px;
         width: 100px;
         height: 30px;
         choose: 1;
         changed => {
             NewProjectConfig.lang = self.choose == 1 ? "Rust" : "C/C++";   
+        
+        
         }
     }
-    lang-txt:=Text{
-        x:t.x - 60px;
+
+    lang-txt := Text {
+        x: t.x - 60px;
         y: 85px;
         text: "语言:";
     }
-    name:=LineEdit {
+
+    is-lib := CheckBox {
+        text: "Lib";
+        enabled: chooser.choose == 1;
+        x: lang-txt.x + lang-txt.width + 120px;
+        y: lang-txt.y - 5px;
+    }
+
+    name := LineEdit {
         x: t.x - self.width + chooser.width;
         y: 125px;
         placeholder-text: "项目名称";
         edited => {
             NewProjectConfig.project-name = self.text;
+        
+        
         }
     }
-    name-text:=Text {
-        x:lang-txt.x - self.width - 5px;
-        y:name.y + self.width / 2 - 20px;
+
+    name-text := Text {
+        x: lang-txt.x - self.width - 5px;
+        y: name.y + self.width / 2 - 20px;
         text: "项目名称";
     }
-    des-text:=Text {
-        x:lang-txt.x - self.width - 5px;
-        y:des-edit.y + self.width / 2 - 20px;
+
+    des-text := Text {
+        x: lang-txt.x - self.width - 5px;
+        y: des-edit.y + self.width / 2 - 20px;
         text: "项目描述";
     }
-    des-edit :=TextEdit {
-        x:name.x;
-        y:170px;
+
+    des-edit := TextEdit {
+        x: name.x;
+        y: 170px;
         text <=> NewProjectConfig.describe;
         width: name.width;
         height: 100px;
         edited => {
             NewProjectConfig.describe = self.text;   
+        
+        
         }
     }
+
     Text {
-        x:des-text.x;
+        x: des-text.x;
         y: 280px;
         text: "项目路径";
     }
-    path:=LineEdit {
+
+    path := LineEdit {
         x: name.x;
         y: 280px;
-        placeholder-text: "项目路径";   
+        placeholder-text: "项目路径";
         edited => {
             NewProjectConfig.path = self.text;
+        
+        
         }
     }
+
     HButton {
-        x : t.x;
+        x: t.x;
         y: 165px;
         width: 100px;
         height: 25px;
-        text: "新建项目";   
+        text: "新建项目";
         clicked => {
-            Functions.im-create-project(NewProjectConfig.project-name,NewProjectConfig.describe,NewProjectConfig.path,NewProjectConfig.lang);
+            Functions.im-create-project(NewProjectConfig.project-name, NewProjectConfig.describe,
+                NewProjectConfig.path, NewProjectConfig.lang, is-lib.checked);
         }
     }
 }
@@ -90,22 +115,59 @@ export component NewMenu {
 //Settings Menu
 
 component SettingsMenu {
-    t:=Text {
-        text: "设置";
-        y:50px;
+    warn := Rectangle {
+        border-width: 5px;
+        border-color: #7f9414d2;
+        width: 200px;
+        height: 40px;
+        background: yellow;
+        opacity: 1;
+        x: (root.x - self.width) / 2;
+        y: 0px;
+        animate opacity{
+            duration: 100ms;
+        }
+        animate y{
+            duration: 100ms;
+        }
+        in-out property <string> Te:"Unenable!";
+        Text {
+            text: warn.Te;
+        }
+        Rectangle {
+            x: 15px;
+            height: root.height;
+            width: 40px;
+            Text {
+                text: "X";
+            }   
+            TouchArea {
+                clicked => {
+                    warn.y = 0;
+                    warn.opacity = 0;
+                }
+            }
+        }
     }
-    path-edit:=LineEdit {
-        placeholder-text: "默认路径";   
-        x:(root.x - self.width) / 2; 
-        y:90px;
+
+    t := Text {
+        text: "设置";
+        y: 50px;
+    }
+
+    path-edit := LineEdit {
+        placeholder-text: "默认路径";
+        x: (root.x - self.width) / 2;
+        y: 90px;
         read-only: true;
         width: config-file.width * 70%;
         text: Functions.get-default-prj-path();
     }
+
     // Browse
     HButton {
         text: "浏览";
-        x:path-edit.x + path-edit.width - 27px;
+        x: path-edit.x + path-edit.width - 27px;
         y: path-edit.y - 45px;
         width: config-file.width * 30%;
         height: path-edit.height;
@@ -113,39 +175,50 @@ component SettingsMenu {
             path-edit.text = Functions.browse-default-project-path();
         }
     }
-    text-path:=Text{
-        x:-t.x - 50px;
-        y:73px;
+
+    text-path := Text {
+        x: -t.x - 50px;
+        y: 73px;
         text: "默认项目路径";
     }
-    config-file:=LineEdit {
+
+    config-file := LineEdit {
         placeholder-text: "配置文件存储路径";
-        x:path-edit.x;
+        x: path-edit.x;
         y: 150px;
         visible: false;
     }
+
     Chooser {
         height: config-file.height;
         width: config-file.width;
         x: config-file.x + 30px;
         y: config-file.y - 70px;
-        one-txt: "当前目录";   
+        one-txt: "当前目录";
         two-txt: "%AppData%";
         two-enabled: false;
+        unenable => {
+            warn.opacity = 1;
+            warn.Te = "Unenable!";
+            warn.y = 50px;
+        }
     }
+
     Text {
         x: text-path.x;
-        y:133px;
+        y: 133px;
         text: "配置文件存储路径";
     }
+
     HButton {
-        x : t.x - 15px;
+        x: t.x - 15px;
         y: 165px;
         width: 100px;
         height: 25px;
-        text: "保存配置";   
+        text: "保存配置";
         clicked => {
             Functions.check-settings();
+        
         }
     }
 }
@@ -155,16 +228,16 @@ component SettingsMenu {
 component ListMenu {
     Text {
         text: "项目列表";
-        y:50px;
-    }   
+        y: 50px;
+    }
 }
 
 // Project Panel
 
-component ProjectPanel{
-    t:=Text {
-        text: "项目 " + Functions.get-now-project-name() +" 面板";
-        y:50px;
+component ProjectPanel {
+    t := Text {
+        text: "项目 " + Functions.get-now-project-name() + " 面板";
+        y: 50px;
     }
 }
 
@@ -174,22 +247,25 @@ component AboutPanel {
     //--title--
     Text {
         text: " Project\nManager";
-        y:50px;
+        y: 50px;
         font-size: 40px;
     }
+
     Text {
         text: "    Copyright © by Haok224.\n           All rights reserved.\n     版权所有 © Haok224。\n           保留所有权利。";
-        y:150px;
+        y: 150px;
         font-size: 20px;
     }
+
     Text {
-        text : "版本 : " + Status.version;
-        y:250px;
+        text: "版本 : " + Status.version;
+        y: 250px;
         font-size: 20px;
     }
+
     Text {
         text: "编译时间 : " + Functions.get-compile-time();
-        y:280px;
+        y: 280px;
         font-size: 20px;
     }
 }
@@ -197,12 +273,29 @@ component AboutPanel {
 //Main Menu
 
 component MainMenu {
-    StartMenu {visible: Status.nowtab == 1;}
-    NewMenu {visible: Status.nowtab == 2;}
-    ListMenu {visible: Status.nowtab == 4;}
-    SettingsMenu {visible: Status.nowtab == 5;}
-    ProjectPanel {visible: Status.nowtab == 6;}
-    AboutPanel {visible: Status.nowtab == 7;}
+    StartMenu {
+        visible: Status.nowtab == 1;
+    }
+
+    NewMenu {
+        visible: Status.nowtab == 2;
+    }
+
+    ListMenu {
+        visible: Status.nowtab == 4;
+    }
+
+    SettingsMenu {
+        visible: Status.nowtab == 5;
+    }
+
+    ProjectPanel {
+        visible: Status.nowtab == 6;
+    }
+
+    AboutPanel {
+        visible: Status.nowtab == 7;
+    }
 }
 
 // ************** //
@@ -213,23 +306,19 @@ export component AppWindow inherits Window {
     title: "Project Manager";
     width: 300px;
     height: 400px;
-
     // 是否按下了鼠标
     property <bool> drag-area-pressed: false;
     // 记录按下的位置
     property <length> drag-area-down-x: 0;
     property <length> drag-area-down-y: 0;
-
     // 调用Rust代码移动窗口
     callback move-window(length, length);
-
     no-frame: true;
     //拖拽区域
     TouchArea {
-        
         border := Rectangle {
-            x:0px;
-            y:0px; 
+            x: 0px;
+            y: 0px;
             width: 300px;
             height: 40px;
             background: red;
@@ -239,27 +328,30 @@ export component AppWindow inherits Window {
                 height: border.height;
                 text: "×";
                 font-size: 40px;
-                x:root.width - self.width - 131px;
+                x: root.width - self.width - 131px;
                 clicked => {
                     Functions.close-window();
                 }
             }
+
             Text {
-                x:root.x + 100px;
-                y:10px;
+                x: root.x + 130px;
+                y: 10px;
                 text: Status.version;
             }
+
             //返回
-            return:=HButton {
+            return := HButton {
                 width: 40px;
                 height: border.height;
                 text: "<";
                 font-size: 40px;
-                x:0;
+                x: 0;
                 clicked => {
                     Status.nowtab = Status.lasttab;
                 }
             }
+
             //Home
             HButton {
                 width: 40px;
@@ -267,40 +359,52 @@ export component AppWindow inherits Window {
                 text: "🏠";
                 font-size: 20px;
                 txt-y-offset: 5px;
-                x:20px;
+                x: 20px;
                 clicked => {
                     Status.nowtab = 1;
                 }
             }
-        }   
+            // History
+            HButton {
+                Image {
+                    source: @image-url("history.png");
+                    x: 45px;
+                    y: 5px;
+                }
+                width: 40px;
+                height: border.height;
+                x: 40px;
+            }
+        }
 
         Rectangle {
             border-color: black;
             border-width: 2px;
-            x:0px;
-            
+            x: 0px;
         }
 
-        MainMenu {x:150px;y:0px;}
-    
-            moved => {
-                //根据移动的偏移量，设置窗口位置
+        MainMenu {
+            x: 150px;
+            y: 0px;
+        }
+
+        moved => {
+            //根据移动的偏移量，设置窗口位置
                 move-window(self.mouse-x - drag-area-down-x, self.mouse-y - drag-area-down-y);
-            }
-            pointer-event(ev) => {
-                drag-area-pressed = ev.kind == PointerEventKind.down;
+        }
+        pointer-event(ev) => {
+            drag-area-pressed = ev.kind == PointerEventKind.down;
                 drag-area-down-x = self.mouse-x;
                 drag-area-down-y = self.mouse-y;
-            }
         }
-
+    }
 }
 
 export global Functions {
     pure callback close_window();
     pure callback total_projects_num() -> int;
-    // name , des , path , lang
-    pure callback create-project(string,string,string,string);
+    // name , des , path , lang , is-lib
+    pure callback create-project(string, string, string, string, bool);
     pure callback browse-default-project-path() -> string;
     pure callback check-settings();
     pure callback set-default-project-path-editor-text(string);
@@ -308,10 +412,12 @@ export global Functions {
     pure callback logln(string);
     pure callback get-now-project-name() -> string;
     pure callback get-compile-time() -> string;
-    callback im-create-project(string,string,string,string);
-    im-create-project(a,b,c,d) => {
-        create-project(a,b,c,d);
+    callback im-create-project(string, string, string, string, bool);
+    im-create-project(a, b, c, d, e) => {
+        create-project(a,b,c,d,e);
         Status.nowtab = 6;
+    
+    
     }
 }
 

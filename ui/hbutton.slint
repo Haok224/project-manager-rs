@@ -1,40 +1,41 @@
 export component HButton {
     @children
-    in-out property <length> font-size <=>txt.font-size;
+    in-out property <length> font-size<=>txt.font-size;
     in-out property <length> txt-y-offset;
     callback clicked();
-    in-out property <image> source <=> im.source;
-    in-out property <string> text <=> txt.text;
-    background:=Rectangle {
+    in-out property <image> source<=> im.source;
+    in-out property <string> text<=> txt.text;
+    background := Rectangle {
         background: touch.has-hover ? #cc0e15 : red;
-        animate background {
+        animate background{
          duration: 165ms;
         }
-        x:root.x;
-        y:root.y;
+        x: root.x;
+        y: root.y;
         width: root.width;
         height: root.height;
-        txt:=Text{
-            x: (parent.width - self.width)/2;
-            y: (parent.height - self.height)/2 + root.txt-y-offset;
+        txt := Text {
+            x: (parent.width - self.width) / 2;
+            y: (parent.height - self.height) / 2 + root.txt-y-offset;
             color: touch.pressed ? #fff : #eee;
         }
     }
 
-    im:=Image{
-        x:root.x;
-        y:root.y;
+    im := Image {
+        x: root.x;
+        y: root.y;
         width: root.width - 5px;
         height: root.height - 5px;
     }
-    
-    touch:=TouchArea {
-        x:root.x;
-        y:root.y;
+
+    touch := TouchArea {
+        x: root.x;
+        y: root.y;
         width: root.width;
         height: root.height;
         clicked => {
             root.clicked();
+        
         }
     }
 }

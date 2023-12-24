@@ -7,10 +7,11 @@ export component StartMenu {
     //--title--
     Text {
         text: " Project\nManager";
-        y:50px;
+        y: 50px;
         font-size: 40px;
-        }
-        // //--openproject--
+    }
+
+    // //--openproject--
         // HButton {  
         //     width: 100px;
         //     x:-25px;
@@ -23,51 +24,56 @@ export component StartMenu {
         //     }
         // }
         //--newproject--
-        HButton {  
-            width: 100px;
-            height: 35px;
-            x:-25px;
-            y:100px;   
-            text: "新建";
-            clicked => {
-                Status.nowtab = 2;
-                Status.lasttab = 1;
-            }
+        HButton {
+        width: 100px;
+        height: 35px;
+        x: -25px;
+        y: 100px;
+        text: "新建";
+        clicked => {
+            Status.nowtab = 2;
+            Status.lasttab = 1;
+        
         }
-        //--listproject--
-        list := HButton {  
-            width: 100px;
-            height: 35px;
-            x:-25px;
-            y:120px;   
-            text: "列表";
-            clicked => {
+    }
+
+    //--listproject--
+        list := HButton {
+        width: 100px;
+        height: 35px;
+        x: -25px;
+        y: 120px;
+        text: "列表";
+        clicked => {
             Status.nowtab = 4;
+            Status.lasttab = 1;
+        
+        }
+    }
+
+    //--settings--
+    HButton {
+        width: 100px;
+        height: 35px;
+        x: -25px;
+        y: 140px;
+        text: "设置";
+        clicked => {
+            Status.nowtab = 5;
             Status.lasttab = 1;
         }
     }
-    //--settings--
-    HButton {  
-        width: 100px;
-        height: 35px;
-        x:-25px;
-        y:140px;   
-        text: "设置";
-        clicked => {
-        Status.nowtab = 5;
-        Status.lasttab = 1;
-        }
-    }  
+
     //--about--
-    HButton {  
+    HButton {
         width: 100px;
         height: 35px;
-        x:-25px;
-        y:160px;   
+        x: -25px;
+        y: 160px;
         text: "关于";
         clicked => {
-        Status.nowtab = 7;
-        Status.lasttab = 1;
+            Status.nowtab = 7;
+            Status.lasttab = 1;
         }
-    }  
+    }
 }
